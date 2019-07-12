@@ -1,5 +1,5 @@
 # YaLAI installer
-# Version 1.0
+# Version 1.1
 # Written by minigyima
 # Copyright 2019
 
@@ -47,12 +47,12 @@ partition() {
     mkswap $swap_part
     swapon $swap_part
 # Boot partition selector (if UEFI)
-    if [$SYSTEM = UEFI] {
+    if [$SYSTEM = UEFI]; then
     efi_boot=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the boot partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
 # Mounting boot partition (if UEFI)
     mkdir /mnt/boot/efi
     mount $efi_boot /boot/efi
-    }
+    fi
 }
 config() {
 # Setting up locales 
@@ -102,7 +102,6 @@ desktop() {
 display_manager() {
 # Choosing display manager
     dm=$(zenity --list --title="$title" --radiolist  --height=500 --width=450 --text "Which display manager would you like to use?" --column "Select" --column "Display Manager" FALSE "lightdm" FALSE "sddm" FALSE "gdm")
-}
 }
 # GRUB 2 install (gets called later...)
 bootloader() {
@@ -164,7 +163,7 @@ install() {
     export LANG=${locale}
     # Keyboard layout
     echo "# Setting keyboard layout for console..."
-    then echo KEYMAP=$layout >> /mnt/etc/vconsole.conf
+    echo KEYMAP=$layout >> /mnt/etc/vconsole.conf
     # Timezone
     echo "# Setting timezone..."
     arch_chroot "rm /etc/localtime"
@@ -299,11 +298,6 @@ install() {
     # Temp clear
         echo "# Cleaning up temporary files..."
         rm -rf /mnt/installtemp
-    # Progressbar
-    echo "100"
-    echo "# Installation Finished!"
-    ) | zenity --progress --percentage=0 --title="$title" --width=450 --no-cancel
-    fi
 }
 # Execution begins...
 welcome_box
