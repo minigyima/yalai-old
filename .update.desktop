@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Exec=bash /.update.sh
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[hu_HU]=YaLAI updater
+Name=YaLAI updater
+Comment[hu_HU]=NetUpdate function for YaLAI
+Comment=NetUpdate function for YaLAI
+X-MATE-Autostart-Delay=0
