@@ -10,7 +10,7 @@ if [[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="BIOS"
 fi
 welcome_text="Welcome to YaLAI (Yet another Live Arch Installer)! \nNext you will be prompted with a set of questions, that will guide you through installing Arch Linux.\nClick 'Yes' to begin, and 'No' to exit."
-title="YaLAI installer (Version 1.0, running in $SYSTEM mode.) "
+title="YaLAI installer (Version 1.1, running in $SYSTEM mode.) "
 arch_chroot() {
     arch-chroot /mnt /bin/bash -c "${1}"
 }
