@@ -1,8 +1,9 @@
 #!/bin/sh
 # YaLAI downloader script
-# Version 1.0
+# Version 1.1
 # Written by minigyima
 # Copyright 2019
+
 title="YaLAI Downloader"
 wellcome_text="Welcome to YaLAI (Yet another Live Arch Installer)! \nPlease ensure that you have an active connection to de internet, since it is mandatory for downloading this installer and also for the installation of Arch Linux. If you need to connect to a wifi network, you may click the NetworkManager icon in the top left corner of the panel. However, if you are using a wireless connection, NetworkManager should automatically detect that, and configure it for you.\nOnce you are connected to the internet, click the 'Yes' button on this dialogbox to proceed. If you would like to exit the installer, press the 'No' button instead.\nAlso you can use this live installer as a rescue cd, by opening a terminal from the system tools menu."
 
@@ -31,7 +32,8 @@ download() {
 
 # execute the installer, then provide choices
 installer() {
-	./yalai.sh
+	bash yalai.sh
+	
 	choice=$(zenity --list --title="YaLAI - Installation finished!" --radiolist --text "YaLAI has finished installing Arch Linux on your system. What would you like to do now?"  --column "Select" --column "Option" FALSE Restart FALSE Close FALSE "Chroot into new system" FALSE "Open pacman.conf")
 		if [ "$choice" = "Restart" ]
 		then reboot
@@ -51,4 +53,3 @@ welcome_box
 ping_google
 download
 installer
-
