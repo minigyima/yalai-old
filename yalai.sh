@@ -127,6 +127,8 @@ bootloader() {
 
 }
 install() {
+    # Mirrorlist
+    sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
     # Base, base-devel
     echo "# Installing base system via pacstrap..."
     pacstrap -i /mnt base base-devel --noconfirm
@@ -225,7 +227,7 @@ install() {
         'Mate')
            echo "# Installing mate..."
 		   sleep 1
-		   arch_chroot "pacman -S mate mate-extra mate-menu mate-media --noconfirm"
+		   arch_chroot "pacman -S mate mate-extra mate-media --noconfirm"
 		   ;;
 			
 
@@ -283,7 +285,7 @@ install() {
         arch_chroot "systemctl enable bluetooth"
     # Yay
         echo "# Installing Yay..."
-        arch_chroot "mkdir installtemp"
+        arch_chroot "mkdir /installtemp"
         mv installyay.sh /mnt/installtemp/
         echo $username >> /mnt/installtemp/username.txt
         echo $dev >> /mnt/installtemp/dev.txt
