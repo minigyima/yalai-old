@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Exec=mate-terminal -e "bash /yalai_dwn.sh" -t "YaLAI installer output"
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[hu_HU]=YaLAI updater autostart
+Name=YaLAI updater
+Comment[hu_HU]=Autostart for the downloader function for YaLAI
+Comment=NetUpdate function for YaLAI
+X-MATE-Autostart-Delay=0
