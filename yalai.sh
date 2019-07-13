@@ -1,5 +1,5 @@
 # YaLAI installer
-# Version 1.1
+# Version 1.2
 # Written by minigyima
 # Copyright 2019
 
@@ -10,7 +10,7 @@ if [[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="BIOS"
 fi
 welcome_text="Welcome to YaLAI (Yet another Live Arch Installer)! \nNext you will be prompted with a set of questions, that will guide you through installing Arch Linux.\nClick 'Yes' to begin, and 'No' to exit."
-title="YaLAI installer (Version 1.1, running in $SYSTEM mode.) "
+title="YaLAI installer (Version 1.2, running in $SYSTEM mode.) "
 arch_chroot() {
     arch-chroot /mnt /bin/bash -c "${1}"
 }
@@ -40,20 +40,29 @@ partition() {
     touch root_part.txt    
     echo $root_part >> root_part.txt
     mount $root_part /mnt
-# Copying $dev name to /mnt/dev.txt
-    echo $dev >> /mnt/dev.txt
-    chmod 777 /mnt/dev.txt
+# Copying some files to /mnt/yalai
+    mkdir /mnt/yalai
+    touch /mnt/yalai/dev.txt
+    echo $dev >> /mnt/yalai/dev.txt
+    cp -r x86_64/* /mnt/yalai
 # Swap partition selector
     swap_part=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the swap partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
     mkswap $swap_part
     swapon $swap_part
 # Boot partition selector (if UEFI)
-    if [$SYSTEM = UEFI]; then
-    efi_boot=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the boot partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
-# Mounting boot partition (if UEFI)
-    mkdir /mnt/boot/efi
-    mount $efi_boot /boot/efi
-    fi
+    case $GRUB in
+            'UEFI')
+                efi_boot=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the boot partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
+                # Mounting boot partition (if UEFI)
+                mkdir /mnt/boot/efi
+                mount $efi_boot /boot/efi
+                ;;
+                
+
+            'BIOS')
+                echo "# Legacy BIOS detected... Skipping boot partition"
+                ;;
+                esac
 }
 config() {
 # Setting up locales 
@@ -120,7 +129,7 @@ bootloader() {
 			echo "# Installing GRUB for BIOS..."
 			sleep 1
             arch_chroot "pacman -S grub --noconfirm"
-			arch_chroot "grub-install --target=i386-pc $(cat /installtemp/dev.txt)"
+			arch_chroot "grub-install --target=i386-pc $(cat /yalai/dev.txt)"
 			arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             ;;
 			esac
@@ -128,8 +137,8 @@ bootloader() {
 
 }
 install() {
-    # Mirrorlist
-    sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
+    # Fixing Mirrorlist
+    cp yalai/mirrorlist /etc/pacman.d/mirrorlist
     # Base, base-devel
     echo "# Installing base system via pacstrap..."
     pacstrap -i /mnt base base-devel --noconfirm
@@ -285,13 +294,12 @@ install() {
         arch_chroot "pacman -S blueman --noconfirm"
         arch_chroot "systemctl enable bluetooth"
     # Yay
-        echo "# Installing Yay..."
-        mv installyay.sh /mnt/
-        arch_chroot "user=$(ls /home/) && su -c 'bash /installtemp/installyay.sh' $user"
-        arch_chroot "user=$(ls /home/) && su -c 'yay -S numix-circle-icon-theme-git --noconfirm' $user"
-        echo "# Setting up sudo for normal operation..."
-        arch_chroot "sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers"
-        arch_chroot "sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers"
+        arch_chroot "pacman -U /yalai/yay-9.2.1-1-x86_64.pkg.tar.xz --noconfirm"
+    # Numix icons
+        arch_chroot "pacman -U /yalai/numix-icon-theme-git-0.r1982.88ba36545-1-any.pkg.tar.xz --noconfirm"
+        arch_chroot "pacman -U /yalai/numix-circle-icon-theme-git-0.r50.386d242-1-any.pkg.tar.xz --noconfirm"
+    # Oxygen cursors
+        arch_chroot "pacman -U /yalai/xcursor-oxygen-5.16.1-1-any.pkg.tar.xz --noconfirm"
     # Calling bootloader function
     bootloader
 }
