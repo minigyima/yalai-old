@@ -1,5 +1,6 @@
 #!/bin/sh
 # YaLAI Yay installer script
+# DEPRECATED...
 # # Version 1.0
 # Written by minigyima
 # Copyright 2019
