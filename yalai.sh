@@ -1,5 +1,5 @@
 # YaLAI installer
-# Version 1.2
+# Version 1.3
 # Written by minigyima
 # Copyright 2019
 
@@ -10,7 +10,7 @@ if [[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="BIOS"
 fi
 welcome_text="Welcome to YaLAI (Yet another Live Arch Installer)! \nNext you will be prompted with a set of questions, that will guide you through installing Arch Linux.\nClick 'Yes' to begin, and 'No' to exit."
-title="YaLAI installer (Version 1.2, running in $SYSTEM mode.) "
+title="YaLAI installer (Version 1.3, running in $SYSTEM mode.) "
 arch_chroot() {
     arch-chroot /mnt /bin/bash -c "${1}"
 }
@@ -43,7 +43,6 @@ partition() {
 # Copying some files to /mnt/yalai
     mkdir /mnt/yalai
     touch /mnt/yalai/dev.txt
-    echo $dev >> /mnt/yalai/dev.txt
     cp -r x86_64/* /mnt/yalai
 # Swap partition selector
     swap_part=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the swap partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
@@ -129,7 +128,7 @@ bootloader() {
 			echo "# Installing GRUB for BIOS..."
 			sleep 1
             arch_chroot "pacman -S grub --noconfirm"
-			arch_chroot "grub-install --target=i386-pc $(cat /yalai/dev.txt)"
+			arch_chroot "grub-install --target=i386-pc $dev"
 			arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             ;;
 			esac
@@ -300,8 +299,12 @@ install() {
         arch_chroot "pacman -U /yalai/numix-circle-icon-theme-git-0.r50.386d242-1-any.pkg.tar.xz --noconfirm"
     # Oxygen cursors
         arch_chroot "pacman -U /yalai/xcursor-oxygen-5.16.1-1-any.pkg.tar.xz --noconfirm"
-    # Calling bootloader function
-    bootloader
+}
+cleanup() {
+    echo "# Deleting temporary files..."
+    rm -rf /mnt/yalai
+    echo "# Unmounting..."
+    umount /mnt
 }
 # Execution begins...
 welcome_box
@@ -313,3 +316,5 @@ user_password
 desktop
 display_manager
 install
+bootloader
+cleanup
