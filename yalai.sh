@@ -29,8 +29,6 @@ partition() {
     sed -i 's/\<disk\>//g' devices.txt
     devices=` awk '{print "FALSE " $0}' devices.txt `
     dev=$(zenity --list --radiolist --height=500 --width=450 --title="$title" --text "Please select the drive, that you want to use for installation. \nThis drive will be used as the GRUB MBR location if the installer is running in BIOS mode." --column Drive --column Info $devices)
-
-
 # Allow user to partition using gparted
     zenity --question --height=500 --width=450 --title="$title" --text "Do you want to partition $dev?\nSelect 'Yes' to open gparted and partition\nthe disk or format partitions if neccesary.\nThe installer will not format the partitions after this,\nso if your partitions need to be formatted please select yes\nand use gparted to format them now."
     if [ "$?" = "0" ]
@@ -42,6 +40,9 @@ partition() {
     touch root_part.txt    
     echo $root_part >> root_part.txt
     mount $root_part /mnt
+# Copying $dev name to /mnt/dev.txt
+    echo $dev >> /mnt/dev.txt
+    chmod 777 /mnt/dev.txt
 # Swap partition selector
     swap_part=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the swap partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
     mkswap $swap_part
@@ -119,8 +120,8 @@ bootloader() {
 			echo "# Installing GRUB for BIOS..."
 			sleep 1
             arch_chroot "pacman -S grub --noconfirm"
-			arch_chroot "grub-install --target=i386-pc "
-			arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg $(cat /installtemp/dev.txt)"
+			arch_chroot "grub-install --target=i386-pc $(cat /installtemp/dev.txt)"
+			arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
             ;;
 			esac
 
@@ -285,21 +286,14 @@ install() {
         arch_chroot "systemctl enable bluetooth"
     # Yay
         echo "# Installing Yay..."
-        arch_chroot "mkdir /installtemp"
-        mv installyay.sh /mnt/installtemp/
-        echo $username >> /mnt/installtemp/username.txt
-        echo $dev >> /mnt/installtemp/dev.txt
-        arch_chroot "chmod -R 777 installtemp"
-        arch_chroot "su -c 'bash /installtemp/installyay.sh' $(cat /installtemp/username.txt)"
-        arch_chroot "su -c 'yay -S numix-circle-icon-theme-git --noconfirm' $(cat /installtemp/username.txt)"
+        mv installyay.sh /mnt/
+        arch_chroot "user=$(ls /home/) && su -c 'bash /installtemp/installyay.sh' $user"
+        arch_chroot "user=$(ls /home/) && su -c 'yay -S numix-circle-icon-theme-git --noconfirm' $user"
         echo "# Setting up sudo for normal operation..."
         arch_chroot "sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL/# %wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers"
         arch_chroot "sed -i 's/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/' /etc/sudoers"
     # Calling bootloader function
     bootloader
-    # Temp clear
-        echo "# Cleaning up temporary files..."
-        rm -rf /mnt/installtemp
 }
 # Execution begins...
 welcome_box
