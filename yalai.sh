@@ -502,3 +502,4 @@ else
     phase='user_password'
     config
     summary
+fi
