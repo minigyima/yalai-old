@@ -70,7 +70,6 @@ secret_menu () {
         'Install summary')
             summary
         ;;
-        esac
         'Quit from YaLAI')
             cleanup
         ;;
