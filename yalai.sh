@@ -352,7 +352,7 @@ install() {
     rm .passwd
     # User
     echo "# Making new user..."
-    arch_chroot "useradd -m -g users -G adm,lp,wheel,power,audio,video -s /bin/bash $username"
+    arch_chroot "useradd -m -g users -G adm,lp,wheel,power,audio,video,uucp,lock -s /bin/bash $username"
     touch .passwd
     echo -e "$userpasswd\n$userpasswd2" > .passwd
     arch_chroot "passwd $username" < .passwd >/dev/null
@@ -463,9 +463,6 @@ install() {
     # Apps from appreseed.conf
         pkgs=$(cat appreseed.conf | grep pkgs | sed -E 's/^pkgs=//')
         arch_chroot "pacman -S $pkgs --noconfirm"
-    # Chroot exec line from appreseed.conf
-        exec=$(cat appreseed.conf | grep exec | sed -E 's/^exec=//')
-        arch_chroot "$exec"
     # Numix icons
         arch_chroot "pacman -U /yalai/numix-icon-theme-git-0.r1982.88ba36545-1-any.pkg.tar.xz --noconfirm"
         arch_chroot "pacman -U /yalai/numix-circle-icon-theme-git-0.r50.386d242-1-any.pkg.tar.xz --noconfirm"
