@@ -292,7 +292,9 @@ makepreseed() {
     echo "shell=$shell" >> preseed_gen.conf
     echo "desktop=$desktop" >> preseed_gen.conf
     echo "display_manager=$dm" >> preseed_gen.conf
-    else echo "# Skipping preseed creation"
+    else 
+    echo "# Skipping preseed creation"
+    fi
 }
 bootloader() {
     # GRUB 2 install (gets called later...)
