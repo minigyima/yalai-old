@@ -5,7 +5,6 @@
 
 # Determinig system type (UEFI or BIOS)
 if [[ -d "/sys/firmware/efi/" ]]; then
-      SYSTEM="UEFI"[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="UEFI"
       else
       SYSTEM="BIOS"
@@ -23,7 +22,7 @@ fi
 }
 # 'Secret' menu for selecting an individual configuration option.
 secret_menu () {
-    sec_menu_choice=$(zenity --list --height=500 --width=450 --title="$title" --radiolist --text "Which configuration option would you like to jump to?" --column Select --column Option FALSE "Config: Locale" FALSE "Config: Keyboard Layout" FALSE "Config: Timezone" FALSE "Config: Hostname" FALSE "Config: Username" FALSE "Config: Change shell" FALSE "Config: Desktop" FALSE "Config: Display manager" FALSE "Config: Root password" FALSE "Config: User password" FALSE "Make preseed script" FALSE "Install summary" FALSE "Quit from YaLAI")
+    sec_menu_choice=$(zenity --list --height=500 --width=450 --title="$title" --radiolist --text "Which configuration option would you like to jump to?" --column Select --column Option FALSE "Config: Locale" FALSE "Config: Keyboard Layout" FALSE "Config: Timezone" FALSE "Config: Hostname" FALSE "Config: Username" FALSE "Config: Change shell" FALSE "Config: Desktop" FALSE "Config: Display manager" FALSE "Config: Root password" FALSE "Config: User password" FALSE "Make preseed script" FALSE "Install summary" FALSE "Quit")
     case $sec_menu_choice in
         'Config: Locale')
             phase='locale'
@@ -71,7 +70,7 @@ secret_menu () {
         'Install summary')
             summary
         ;;
-        'Quit from YaLAI')
+        'Quit')
             cleanup
         ;;
         esac
