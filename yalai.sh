@@ -105,8 +105,10 @@ partition() {
     # Boot partition selector (if UEFI)
     case $SYSTEM in
             'UEFI')
+                # Boot partition selector dialogbox
                 efi_boot=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the boot partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
                 # Mounting boot partition (if UEFI)
+                mkdir /mnt/boot
                 mkdir /mnt/boot/efi
                 mount $efi_boot /mnt/boot/efi
                 ;;
@@ -300,9 +302,10 @@ bootloader() {
     # GRUB 2 install (gets called later...)
     case $SYSTEM in
         'UEFI')
-           
+            # Installing packages           
 			echo "# Installing GRUB for UEFI..."
             arch_chroot "pacman -S grub efibootmgr --noconfirm"
+            # Installing grub
 			arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB"
 			arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 			;;
