@@ -108,7 +108,7 @@ partition() {
                 efi_boot=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the boot partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
                 # Mounting boot partition (if UEFI)
                 mkdir /mnt/boot/efi
-                mount $efi_boot /boot/efi
+                mount $efi_boot /mnt/boot/efi
                 ;;
                 
 
