@@ -107,10 +107,6 @@ partition() {
             'UEFI')
                 # Boot partition selector dialogbox
                 efi_boot=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the boot partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
-                # Mounting boot partition (if UEFI)
-                mkdir /mnt/boot
-                mkdir /mnt/boot/efi
-                mount $efi_boot /mnt/boot/efi
                 ;;
                 
 
@@ -305,6 +301,9 @@ bootloader() {
             # Installing packages           
 			echo "# Installing GRUB for UEFI..."
             arch_chroot "pacman -S grub efibootmgr --noconfirm"
+            # Mounting boot partition (if UEFI)
+            arch_chroot "mkdir /boot/efi"
+            arch_chroot "mount $efi_boot /boot/efi"
             # Installing grub
 			arch_chroot "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB"
 			arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -477,7 +476,7 @@ install() {
     cleanup
 }
 summary() {
-    if zenity --question --height 300 --width 450 --title "$title" --text "Theese are the options you have choosen for the installation.\nLocale: $locale\nKeyboard layout: $layout\nTimezone: $zone\nSubzone: $subzone\n Hostname: $hostname\nUsername: $username\nShell: $shell\nDesktop: $desktop\nDisplay manager: $dm\n Would you like to continue?"; then
+    if zenity --question --height 300 --width 450 --title "$title" --text "Theese are the options you have choosen for the installation.\nLocale: $locale\nKeyboard layout: $layout\nTimezone: $zone\nSubzone: $subzone\nHostname: $hostname\nUsername: $username\nShell: $shell\nDesktop: $desktop\nDisplay manager: $dm\n Would you like to continue?"; then
     install
     else secret_menu
     fi
