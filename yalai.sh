@@ -447,7 +447,7 @@ install() {
 		'Gnome') 
 			echo "# Installing Gnome..."
 			sleep 1
-			arch_chroot "pacman -S gnome-desktop gnome-tweaks gnome-control-center --noconfirm"
+			arch_chroot "pacman -S gnome --noconfirm"
             ;;
 			esac
     # Applications
