@@ -5,6 +5,7 @@
 
 # Determinig system type (UEFI or BIOS)
 if [[ -d "/sys/firmware/efi/" ]]; then
+      SYSTEM="UEFI"[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="UEFI"
       else
       SYSTEM="BIOS"
@@ -22,7 +23,7 @@ fi
 }
 # 'Secret' menu for selecting an individual configuration option.
 secret_menu () {
-    sec_menu_choice=$(zenity --list --height=500 --width=450 --title="$title" --radiolist --text "Which configuration option would you like to jump to?" --column Select --column Option FALSE "Config: Locale" FALSE "Config: Keyboard Layout" FALSE "Config: Timezone" FALSE "Config: Hostname" FALSE "Config: Username" FALSE "Config: Change shell" FALSE "Config: Desktop" FALSE "Config: Display manager" FALSE "Config: Root password" FALSE "Config: User password" FALSE "Make preseed script" FALSE "Install summary" FALSE Quit from YaLAI)
+    sec_menu_choice=$(zenity --list --height=500 --width=450 --title="$title" --radiolist --text "Which configuration option would you like to jump to?" --column Select --column Option FALSE "Config: Locale" FALSE "Config: Keyboard Layout" FALSE "Config: Timezone" FALSE "Config: Hostname" FALSE "Config: Username" FALSE "Config: Change shell" FALSE "Config: Desktop" FALSE "Config: Display manager" FALSE "Config: Root password" FALSE "Config: User password" FALSE "Make preseed script" FALSE "Install summary" FALSE "Quit from YaLAI")
     case $sec_menu_choice in
         'Config: Locale')
             phase='locale'
@@ -103,7 +104,7 @@ partition() {
     mkswap $swap_part
     swapon $swap_part
     # Boot partition selector (if UEFI)
-    case $GRUB in
+    case $SYSTEM in
             'UEFI')
                 efi_boot=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the boot partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
                 # Mounting boot partition (if UEFI)
