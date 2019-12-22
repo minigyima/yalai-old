@@ -1,5 +1,5 @@
 # YaLAI installer
-# Version 2.2
+# Version 2.2.1
 # Written by minigyima
 # Copyright 2019
 
@@ -10,7 +10,7 @@ if [[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="BIOS"
 fi
 welcome_text="Welcome to YaLAI (Yet another Live Arch Installer)! \nNext you will be prompted with a set of questions, that will guide you through installing Arch Linux.\nClick 'Yes' to begin, and 'No' to exit."
-title="YaLAI installer (Version 2.2, running in $SYSTEM mode.) "
+title="YaLAI installer (Version 2.2.1, running in $SYSTEM mode.) "
 arch_chroot() {
     arch-chroot /mnt /bin/bash -c "${1}"
 }
@@ -460,10 +460,10 @@ install() {
         arch_chroot "pacman -S git --noconfirm"
         arch_chroot "mkdir /yalai"
         arch_chroot "chmod 777 /yalai"
-        arch_chroot "su -c $username 'cd /yalai && git clone https://aur.archlinux.org/yay.git'"
-        arch_chroot "su -c $username 'cd /yalai/yay && makepkg -si'"
+        arch_chroot "su -c 'cd /yalai && git clone https://aur.archlinux.org/yay.git' $username"
+        arch_chroot "su -c 'cd /yalai/yay && makepkg -si' $username"
     # AUR package installer
-        arch_chroot "su -c $username 'yay -S $(cat appreseed.conf | grep aur | sed -E 's/^aur=//')'"
+        arch_chroot "su -c 'yay -S $(cat appreseed.conf | grep aur | sed -E 's/^aur=//')' $username"
     # Postinst
         arch_chroot "$(cat appreseed.conf | grep postinst | sed -E 's/^postinst=//')"
     # Grub install
