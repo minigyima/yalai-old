@@ -1,5 +1,5 @@
 # YaLAI installer
-# Version 2.0
+# Version 2.2
 # Written by minigyima
 # Copyright 2019
 
@@ -10,7 +10,7 @@ if [[ -d "/sys/firmware/efi/" ]]; then
       SYSTEM="BIOS"
 fi
 welcome_text="Welcome to YaLAI (Yet another Live Arch Installer)! \nNext you will be prompted with a set of questions, that will guide you through installing Arch Linux.\nClick 'Yes' to begin, and 'No' to exit."
-title="YaLAI installer (Version 2.0, running in $SYSTEM mode.) "
+title="YaLAI installer (Version 2.2, running in $SYSTEM mode.) "
 arch_chroot() {
     arch-chroot /mnt /bin/bash -c "${1}"
 }
@@ -95,9 +95,6 @@ partition() {
     touch root_part.txt    
     echo $root_part >> root_part.txt
     mount $root_part /mnt
-    # Copying some files to /mnt/yalai
-    mkdir /mnt/yalai
-    cp -r x86_64/* /mnt/yalai
     # Swap partition selector
     swap_part=$(zenity --list  --radiolist --height=300 --width=450 --title="$title" --text="Please choose a partition to use for the swap partition\nWarning, this list shows all available partitions on all available drives.\nPlease choose with care." --column ' ' --column 'Partitions' $(sudo fdisk -l | grep dev | grep -v Disk | awk '{print $1}' | awk '{ printf " FALSE ""\0"$0"\0" }'))
     mkswap $swap_part
@@ -456,23 +453,19 @@ install() {
         arch_chroot "sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers"
         echo "# Installing applications..."
     # Base programs
-        arch_chroot "pacman -S bash-completion haveged gst-plugins-good gst-plugins-bad gst-plugins-base gst-plugins-ugly gst-libav networkmanager network-manager-applet dhclient openssh blueman --noconfirm"
-        arch_chroot "systemctl enable haveged"
-        arch_chroot "systemctl enable NetworkManager"
-        echo 'Enabling bluetooth support...'
-        arch_chroot "systemctl enable bluetooth"
-        arch_chroot "systemctl enable sshd.service"
-        arch_chroot "systemctl enable sshd.socket"
-    # Yay
-        arch_chroot "pacman -U /yalai/yay-9.2.1-1-x86_64.pkg.tar.xz --noconfirm"
+        arch_chroot "pacman -S --asdeps $(cat appreseed.conf | grep base | sed -E 's/^base=//') --noconfirm"
     # Apps from appreseed.conf
-        pkgs=$(cat appreseed.conf | grep pkgs | sed -E 's/^pkgs=//')
-        arch_chroot "pacman -S $pkgs --noconfirm"
-    # Numix icons
-        arch_chroot "pacman -U /yalai/numix-icon-theme-git-0.r1982.88ba36545-1-any.pkg.tar.xz --noconfirm"
-        arch_chroot "pacman -U /yalai/numix-circle-icon-theme-git-0.r50.386d242-1-any.pkg.tar.xz --noconfirm"
-    # Oxygen cursors
-        arch_chroot "pacman -U /yalai/xcursor-oxygen-5.16.1-1-any.pkg.tar.xz --noconfirm"
+        arch_chroot "pacman -S $(cat appreseed.conf | grep pkgs | sed -E 's/^pkgs=//') --noconfirm"
+    # AUR stuff (aka the Yay installer)
+        arch_chroot "pacman -S git --noconfirm"
+        arch_chroot "mkdir /yalai"
+        arch_chroot "chmod 777 /yalai"
+        arch_chroot "su -c $username 'cd /yalai && git clone https://aur.archlinux.org/yay.git'"
+        arch_chroot "su -c $username 'cd /yalai/yay && makepkg -si'"
+    # AUR package installer
+        arch_chroot "su -c $username 'yay -S $(cat appreseed.conf | grep aur | sed -E 's/^aur=//')'"
+    # Postinst
+        arch_chroot "$(cat appreseed.conf | grep postinst | sed -E 's/^postinst=//')"
     # Grub install
     bootloader
     # Cleanup
