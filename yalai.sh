@@ -461,9 +461,9 @@ install() {
         arch_chroot "mkdir /yalai"
         arch_chroot "chmod 777 /yalai"
         arch_chroot "su -c 'cd /yalai && git clone https://aur.archlinux.org/yay.git' $username"
-        arch_chroot "su -c 'cd /yalai/yay && makepkg -si' $username"
+        arch_chroot "su -c 'cd /yalai/yay && makepkg -si --noconfirm' $username"
     # AUR package installer
-        arch_chroot "su -c 'yay -S $(cat appreseed.conf | grep aur | sed -E 's/^aur=//')' $username"
+        arch_chroot "su -c 'yay -S --noconfirm $(cat appreseed.conf | grep aur | sed -E 's/^aur=//')' $username"
     # Postinst
         arch_chroot "$(cat appreseed.conf | grep postinst | sed -E 's/^postinst=//')"
     # Grub install
