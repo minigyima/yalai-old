@@ -331,10 +331,9 @@ install() {
     cp mirrorlist /etc/pacman.d/mirrorlist
     # Base, base-devel
     echo "# Installing base system via pacstrap..."
-    baselist="bash bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses linux linux-firmware logrotate lvm2 man-db man-pages mdadm nano netctl pacman pciutils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs"
     pacstrap -i /mnt base base-devel --noconfirm
     echo "# Installing kernel and other utils..."
-    arch_chroot "pacman -S --asdeps --noconfirm $baselist"
+    arch_chroot "pacman -S --asdeps --noconfirm bash bzip2 coreutils cryptsetup device-mapper dhcpcd diffutils e2fsprogs file filesystem findutils gawk gcc-libs gettext glibc grep gzip inetutils iproute2 iputils jfsutils less licenses linux linux-firmware logrotate lvm2 man-db man-pages mdadm nano netctl pacman pciutils perl procps-ng psmisc reiserfsprogs s-nail sed shadow sysfsutils systemd-sysvcompat tar texinfo usbutils util-linux vi which xfsprogs"
     # Genfstab
     echo "# Generating fstab via genfstab..."
     genfstab -U /mnt >> /mnt/etc/fstab
